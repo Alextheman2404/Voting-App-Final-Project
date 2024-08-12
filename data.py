@@ -22,9 +22,9 @@ class VotingData:
         if not os.path.isfile(self.data_file):
             with open(self.data_file, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(["ID", " Vote"])  # Write header to the data file
+                writer.writerow(["ID", " Vote"])
         if not os.path.isfile(self.backup_file):
-            shutil.copy(self.data_file, self.backup_file)  # Create the backup file if it doesn't exist
+            shutil.copy(self.data_file, self.backup_file)
 
     def record_vote(self, unique_id: str, vote: str) -> None:
         """
@@ -35,7 +35,7 @@ class VotingData:
         """
         with open(self.data_file, "a", newline='') as file:
             writer = csv.writer(file)
-            writer.writerow([unique_id, f" {vote}"])  # Add a space before the vote
+            writer.writerow([unique_id, f" {vote}"])
         self.update_backup_file()
 
     def update_backup_file(self) -> None:
@@ -53,7 +53,7 @@ class VotingData:
         """
         with open(self.data_file, "r") as file:
             reader = csv.reader(file)
-            next(reader)  # Skip header
+            next(reader)
             for row in reader:
                 if row[0] == unique_id:
                     return False
@@ -68,7 +68,7 @@ class VotingData:
         tally = {"John": 0, "Jane": 0}
         with open(self.data_file, "r") as file:
             reader = csv.reader(file)
-            next(reader)  # Skip header
+            next(reader)
             for _, vote in reader:
                 if vote.strip() in tally:
                     tally[vote.strip()] += 1
@@ -80,5 +80,5 @@ class VotingData:
         """
         with open(self.data_file, "w", newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(["ID", " Vote"])  # Write header to the data file
+            writer.writerow(["ID", " Vote"])
         self.update_backup_file()

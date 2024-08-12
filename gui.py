@@ -5,7 +5,22 @@ from data import VotingData
 
 
 class Tooltip:
+    """
+    A class to create tooltips for widgets in a Tkinter GUI.
+
+    Attributes:
+        widget: The widget to which the tooltip is attached.
+        text: The text to display in the tooltip.
+        tooltip_window: The window that displays the tooltip.
+    """
+
     def __init__(self, widget, text):
+        """
+        Initialize the Tooltip with a widget and text.
+
+        :param widget: The widget to attach the tooltip to.
+        :param text: The text to display in the tooltip.
+        """
         self.widget = widget
         self.text = text
         self.tooltip_window = None
@@ -13,6 +28,11 @@ class Tooltip:
         self.widget.bind('<Leave>', self.hide_tooltip)
 
     def show_tooltip(self, event):
+        """
+        Display the tooltip when the mouse enters the widget.
+
+        :param event: The event that triggered the method.
+        """
         if self.tooltip_window or not self.text:
             return
         x, y, _, _ = self.widget.bbox("insert")
@@ -25,13 +45,31 @@ class Tooltip:
         label.pack()
 
     def hide_tooltip(self, event):
+        """
+        Hide the tooltip when the mouse leaves the widget.
+
+        :param event: The event that triggered the method.
+        """
         if self.tooltip_window:
             self.tooltip_window.destroy()
             self.tooltip_window = None
 
 
 class VotingApp(Frame):
+    """
+    A class to represent a voting application GUI built with Tkinter.
+
+    Attributes:
+        window: The main window of the Tkinter application.
+        voting_data: An instance of the VotingData class for handling voting data.
+    """
+
     def __init__(self, window):
+        """
+        Initialize the VotingApp with the main window.
+
+        :param window: The main Tkinter window.
+        """
         super().__init__(window)
         self.window = window
         self.configure(bg="#f0f0f0")
@@ -54,6 +92,9 @@ class VotingApp(Frame):
         self.grid_columnconfigure(2, weight=1)
 
     def create_widgets(self):
+        """
+        Create and arrange the widgets for the voting application.
+        """
         # Frame for the ID entry
         self.frame_id = Frame(self, bg="#f0f0f0")
         self.frame_id.grid(row=0, column=0, columnspan=3, pady=10, padx=20, sticky="ew")
@@ -66,7 +107,7 @@ class VotingApp(Frame):
         # Frame for the voting options
         self.frame_vote = Frame(self, bg="#f0f0f0")
         self.frame_vote.grid(row=1, column=0, columnspan=3, pady=10, padx=20, sticky="ew")
-        self.vote_var = StringVar(None, "A")  # Initialize with empty value
+        self.vote_var = StringVar(None, "A")
         self.vote_label = Label(self.frame_vote, text="Vote:", width=15, bg="#f0f0f0", font=("Arial", 12))
         self.vote_label.grid(row=0, column=0, padx=5, pady=5, sticky='w')
         self.option_john_radio = Radiobutton(self.frame_vote, text="John", variable=self.vote_var, value="John",
@@ -97,14 +138,24 @@ class VotingApp(Frame):
         self.tally_label.grid(row=0, column=0, padx=5, pady=5, sticky='w')
         self.tally_display.grid(row=0, column=1, padx=5, pady=5, sticky='w')
 
-        self.window.update_idletasks()
-
+    def update_vote_tally(self):
+        """
+        Update the vote tally display in the GUI.
+        """
+        tally = self.voting_data.get_vote_tally()
+        tally_text = f"John: {tally['John']}   Jane: {tally['Jane']}"
+        self.tally_display.config(text=tally_text)
     def confirm_vote(self):
-        # Show a confirmation dialog
+        """
+        Display a confirmation dialog before submitting the vote.
+        """
         if messagebox.askyesno("Confirm Vote", "Are you sure you want to submit this vote?"):
             self.submit_vote()
 
     def submit_vote(self):
+        """
+        Submit the vote after validating the unique ID and selected vote option.
+        """
         unique_id = self.input_id.get().strip()
         vote = self.vote_var.get()
 
@@ -118,7 +169,7 @@ class VotingApp(Frame):
 
         # Validate the vote selection
         if not vote:
-            self.error_message.config(text="Please pick a vote first", fg="red")
+            self.error_message.config(text="Please pick a vote", fg="red")
             return
 
         # Check if ID is unique
@@ -132,24 +183,7 @@ class VotingApp(Frame):
                 self.error_message.config(text="Please pick a vote first", fg="red")
             else:
                 self.voting_data.record_vote(unique_id, vote)
-                self.error_message.config(text="Vote recorded successfully!", fg="green")  # Change to green for success
+                self.error_message.config(text="Vote recorded successfully!", fg="green")
                 self.update_vote_tally()
         except Exception as e:
-            self.error_message.config(text="Error recording vote", fg="red")  # Ensure error is red
-
-    def update_vote_tally(self):
-        """Update the displayed vote tally."""
-        try:
-            tally = self.voting_data.get_vote_tally()
-            self.tally_display.config(text=f"John: {tally['John']}  Jane: {tally['Jane']}")
-        except Exception as e:
-            self.error_message.config(text="Error updating vote tally", fg="red")  # Ensure error is red
-
-
-if __name__ == "__main__":
-    root = Tk()
-    root.title("Voting App")
-    root.geometry("600x300")
-    root.resizable(False, False)
-    app = VotingApp(root)
-    app.mainloop()
+            self.error_message.config(text="Error recording vote", fg="red")

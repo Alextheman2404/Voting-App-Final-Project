@@ -3,7 +3,6 @@ from gui import VotingApp
 
 
 def main():
-    # This is the main window
     window = Tk()
     window.title("Voting App")
     window.geometry("600x300")
